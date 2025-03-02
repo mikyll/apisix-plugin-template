@@ -1,0 +1,121 @@
+upstreams:
+  # Upstream to internal service (hosted on Docker, accessible via bridged virtual network at http://httpbin-standalone:80 or http://localhost:3000)
+  - id: internal_httpbin
+    nodes:
+      "httpbin-standalone:80": 1
+    type: roundrobin
+  # Upstream to external service (accessible at https://httpbin.org)
+  - id: external_httpbin
+    scheme: https
+    nodes:
+      "httpbin.org": 1
+    type: roundrobin
+
+consumers:
+  # Consumer for JWT authentication, used for authenticating a route protected by JWT auth
+  - username: "joe"
+    plugins:
+      jwt-auth:
+        key: "joe_key"
+        secret: "joe_secret"
+  # Consumer for Key authentication, used for authenticating a route protected by API key auth
+  - username: "mike"
+    plugins:
+      key-auth:
+        key: "mike_key"
+
+routes:
+  # Simple route to internal service
+  # curl localhost:9080/anything
+  - id: base_internal
+    uri: /anything
+    methods: ["GET"]
+    upstream_id: internal_httpbin
+
+  # Simple route to external service
+  # curl localhost:9080/get
+  - id: base_external
+    uri: /get
+    methods: ["GET"]
+    upstream_id: external_httpbin
+
+  # Route with regex URI transformation
+  # curl localhost:9080/httpbin/ip
+  - id: httpbin
+    uri: /httpbin/*
+    upstream_id: internal_httpbin
+    plugins:
+      proxy-rewrite:
+        regex_uri:
+          - ^/httpbin/(.*)
+          - /$1
+
+  # Route with path parameters
+  # curl localhost:9080/path_params/foo/bar/get
+  - id: path_params
+    uri: /path_params/:id1/:id2/*
+    upstream_id: internal_httpbin
+    plugins:
+      proxy-rewrite:
+        regex_uri:
+          - ^/path_params/(.*)/(.*)/(.*)
+          - /$3?id1=$1&id2=$2
+  
+  # Route with vars matching
+  # curl "localhost:9080/vars/test?name=joe&age=10"
+  # curl "localhost:9080/vars/test?name=joe&age=20"
+  - id: vars
+    uri: /vars/*
+    upstream_id: internal_httpbin
+    vars:
+      - 
+        - AND
+        - 
+          - "arg_name"
+          - "=="
+          - "joe"
+        - 
+          - "arg_age"
+          - ">"
+          - "18"
+    plugins:
+      proxy-rewrite:
+        uri: /get
+
+  # Route with filter_func matching
+  # curl "localhost:9080/filter_func/test?age=19"
+  # curl "localhost:9080/filter_func/test?age=20"
+  - id: filter_func
+    uri: /filter_func/*
+    upstream_id: internal_httpbin
+    filter_func: |
+      function(vars)
+        return vars.arg_age and tonumber(vars.arg_age) % 2 == 0
+      end
+    plugins:
+      proxy-rewrite:
+        uri: /get
+
+  # Route with JWT authentication
+  # JWT="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJqb2Vfa2V5Iiwic3ViIjoiMTIzNDU2Nzg5MCIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjo5OTUxNjIzOTAyMn0.K-QwAwaS-Y3D9e_S9LPnU_35jWTnOBqfnIXf260Z-Aw"
+  # curl localhost:9080/jwt_auth/ -H "Authorization: Bearer ${JWT}"
+  - id: jwt_auth
+    uri: /jwt_auth/*
+    upstream_id: internal_httpbin
+    plugins:
+      proxy-rewrite:
+        uri: /get
+      jwt-auth:
+        key: "joe_key"
+        algorithm: "HS256"
+
+  # Route with demo plugin
+  # curl localhost:9080/demo
+  - id: demo
+    uri: /demo
+    upstream_id: internal_httpbin
+    plugins:
+      demo:
+        body: "Hello from demo plugin!"
+
+#END
