@@ -42,5 +42,17 @@ JWT="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJqb2Vfa2V5Iiwic3ViIjoiMTIzND
 curl -i "localhost:9080/jwt_auth/" -H "Authorization: Bearer ${JWT}"
 
 echo ""
+read -p 'JWT=""; curl -i "localhost:9080/key_auth/"'
+API_KEY=""
+curl -i "localhost:9080/key_auth/"
+echo ""
+read -p 'JWT=""; curl -i "localhost:9080/key_auth/" -H "X-Api-Key: ${API_KEY}"'
+curl localhost:9080/key_auth/ -H "X-Api-Key: ${API_KEY}"
+echo ""
+API_KEY="mike_key"
+read -p 'JWT=""; curl -i "localhost:9080/key_auth/" -H "X-Api-Key: ${API_KEY}"'
+curl localhost:9080/key_auth/ -H "X-Api-Key: ${API_KEY}"
+
+echo ""
 read -p 'curl -i "localhost:9080/demo"'
 curl -i "localhost:9080/demo"
