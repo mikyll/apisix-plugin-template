@@ -110,7 +110,7 @@ routes:
         algorithm: "HS256"
 
   # Route with Key authentication
-  # API_KEY: mike_key
+  # API_KEY="mike_key"
   # curl localhost:9080/key_auth/ -H "X-Api-Key: ${API_KEY}"
   - id: key_auth
     uri: /key_auth/*
