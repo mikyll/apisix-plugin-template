@@ -28,6 +28,7 @@ services:
         condition: service_healthy
     volumes:
       - ./conf_apisix/config.yaml:/usr/local/apisix/conf/config.yaml:ro
+      - ./conf/debug.yaml:/usr/local/apisix/conf/debug.yaml
       - ../../apisix/plugins:/usr/local/apisix/apisix/plugins/custom/apisix/plugins
     ports:
       - "9080:9080/tcp"

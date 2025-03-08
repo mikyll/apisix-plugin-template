@@ -24,7 +24,7 @@ curl -s -i -X PUT "http://localhost:9180/apisix/admin/upstreams/external_httpbin
 
 # Consumers
 # Consumer for JWT authentication, used for authenticating a route protected by JWT auth
-curl -s -i -X PUT "http://127.0.0.1:9180/apisix/admin/consumers" -H "X-API-KEY: $ADMIN_APIKEY" -d '
+curl -s -i -X PUT "http://localhost:9180/apisix/admin/consumers" -H "X-API-KEY: $ADMIN_APIKEY" -d '
 {
   "username": "joe",
   "plugins": {
@@ -36,7 +36,7 @@ curl -s -i -X PUT "http://127.0.0.1:9180/apisix/admin/consumers" -H "X-API-KEY: 
 }'
 
 # Consumer for Key authentication, used for authenticating a route protected by API key auth
-curl -s -i -X PUT "http://127.0.0.1:9180/apisix/admin/consumers" -H "X-API-KEY: $ADMIN_APIKEY" -d '
+curl -s -i -X PUT "http://localhost:9180/apisix/admin/consumers" -H "X-API-KEY: $ADMIN_APIKEY" -d '
 {
   "username": "mike",
   "plugins": {
@@ -162,6 +162,24 @@ curl -s -i -X PUT "http://localhost:9180/apisix/admin/routes/jwt_auth" -H "X-API
     "jwt-auth": {
       "key": "joe_key",
       "algorithm": "HS256"
+    }
+  }
+}'
+
+# Route with Key authentication
+# API_KEY="mike_key"
+# curl localhost:9080/key_auth/ -H "X-Api-Key: ${API_KEY}"
+curl -s -i -X PUT "http://localhost:9180/apisix/admin/routes/key_auth" -H "X-API-KEY: $ADMIN_APIKEY" -d '
+{
+  "uri": "/key_auth/*",
+  "upstream_id": "internal_httpbin",
+  "plugins": {
+    "proxy-rewrite": {
+      "uri": "/get"
+    },
+    "key-auth": {
+      "key": "mike_key",
+      "header": "X-Api-Key"
     }
   }
 }'
