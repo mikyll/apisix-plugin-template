@@ -1,11 +1,11 @@
 -- local common libs
-local require = require
-local core    = require("apisix.core")
+local require       = require
+local core          = require("apisix.core")
 
 -- local function
 
 -- module define
-local plugin_name = "demo"
+local plugin_name   = "demo"
 
 -- plugin schema
 local plugin_schema = {
@@ -16,14 +16,14 @@ local plugin_schema = {
             type = "string"
         },
     },
-    required = {"body"},
+    required = { "body" },
 }
 
-local _M = {
-    version  = 0.1,            -- plugin version
-    priority = 0,              -- the priority of this plugin will be 0
-    name     = plugin_name,    -- plugin name
-    schema   = plugin_schema,  -- plugin schema
+local _M            = {
+    version  = 0.1,           -- plugin version
+    priority = 0,             -- the priority of this plugin will be 0
+    name     = plugin_name,   -- plugin name
+    schema   = plugin_schema, -- plugin schema
 }
 
 
@@ -31,7 +31,6 @@ local _M = {
 function _M.init()
 
 end
-
 
 -- module interface for schema check
 -- @param `conf` user defined conf data
@@ -41,13 +40,11 @@ function _M.check_schema(conf, schema_type)
     return core.schema.check(plugin_schema, conf)
 end
 
-
 -- module interface for rewrite phase
 -- not actually rewrite, just before framework's access phase
 function _M.rewrite()
 
 end
-
 
 -- module interface for access phase
 -- @param `conf`
@@ -57,24 +54,20 @@ function _M.access(conf, ctx)
     return 200, { message = conf.body }
 end
 
-
 -- module interface for access phase
 function _M.before_proxy(conf, ctx)
 
 end
-
 
 -- module interface for header_filter phase
 function _M.header_filter(conf, ctx)
 
 end
 
-
 -- module interface for body_filter phase
 function _M.body_filter(conf, ctx)
 
 end
-
 
 -- module interface for log phase
 -- @param `conf`
@@ -83,9 +76,8 @@ function _M.log(conf, ctx)
 
 end
 
-
 local function public_api()
-    return 200, {msg = "public_api"}
+    return 200, { msg = "public_api" }
 end
 
 
@@ -93,18 +85,17 @@ end
 function _M.api()
     return {
         {
-            methods = {"GET"},
+            methods = { "GET" },
             uri = "/apisix/plugin/demo/public_api",
             handler = public_api,
         }
     }
 end
 
-
 local function control_api()
     local args = ngx.req.get_uri_args()
     if args["json"] then
-        return 200, {msg = "hello"}
+        return 200, { msg = "hello" }
     else
         return 200, "world"
     end
@@ -114,8 +105,8 @@ end
 function _M.control_api()
     return {
         {
-            methods = {"GET"},
-            uris = {"/v1/plugin/demo/control_api"},
+            methods = { "GET" },
+            uris = { "/v1/plugin/demo/control_api" },
             handler = control_api,
         }
     }
