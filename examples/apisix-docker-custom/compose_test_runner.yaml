@@ -1,0 +1,13 @@
+services:
+  apisix-test-runner:
+    container_name: apisix-custom-test-runner
+    image: apache/apisix:custom
+    restart: no
+    volumes:
+      - ./conf/config.yaml:/usr/local/apisix/conf/config.yaml
+      - ../../apisix/plugins:/usr/local/apisix/apisix/plugins/custom/apisix/plugins
+    ports:
+      - "9080:9080/tcp"
+      - "9443:9443/tcp"
+    entrypoint:
+      - "/home/apisix/run_tests.sh"
