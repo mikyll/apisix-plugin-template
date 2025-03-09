@@ -10,7 +10,6 @@ services:
     volumes:
       - ./conf/config.yaml:/usr/local/apisix/conf/config.yaml
       - ./conf/apisix.yaml:/usr/local/apisix/conf/apisix.yaml
-      - ./conf/debug.yaml:/usr/local/apisix/conf/debug.yaml
       - ../../apisix/plugins:/usr/local/apisix/apisix/plugins/custom/apisix/plugins
     ports:
       - "9080:9080/tcp"

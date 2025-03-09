@@ -60,7 +60,7 @@ routes:
         regex_uri:
           - ^/path_params/(.*)/(.*)/(.*)
           - /$3?id1=$1&id2=$2
-  
+
   # Route with vars matching
   # curl "localhost:9080/vars/test?name=joe&age=10"
   # curl "localhost:9080/vars/test?name=joe&age=20"
@@ -68,16 +68,9 @@ routes:
     uri: /vars/*
     upstream_id: internal_httpbin
     vars:
-      - 
-        - AND
-        - 
-          - "arg_name"
-          - "=="
-          - "joe"
-        - 
-          - "arg_age"
-          - ">"
-          - "18"
+      - AND,
+        [ "arg_name", "==", "joe" ]
+        [ "arg_age", ">", "18" ]
     plugins:
       proxy-rewrite:
         uri: /get
@@ -130,5 +123,4 @@ routes:
     plugins:
       demo:
         body: "Hello from demo plugin!"
-
 #END
