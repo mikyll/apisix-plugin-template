@@ -4,10 +4,14 @@ services:
     image: apache/apisix:custom
     restart: no
     volumes:
-      - ./conf/config.yaml:/usr/local/apisix/conf/config.yaml
-      - ../../apisix/plugins:/usr/local/apisix/apisix/plugins/custom/apisix/plugins
+      - ./conf/config.yaml:/home/apisix/apisix_src/conf/config.yaml
+      - ../../apisix/plugins:/home/apisix/apisix_src/apisix/plugins
+      - ../../t:/home/apisix/apisix_src/t/custom
     ports:
       - "9080:9080/tcp"
       - "9443:9443/tcp"
-    entrypoint:
-      - "/home/apisix/run_tests.sh"
+    command:
+      - /home/apisix/run_tests.sh
+      - "-f"
+      - "-t"
+      - "/home/apisix/apisix_src/t/custom/demo/demo.t"

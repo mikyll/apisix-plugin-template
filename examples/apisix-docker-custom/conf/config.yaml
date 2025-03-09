@@ -31,6 +31,7 @@ deployment:
 
 plugins:                           # plugin list (sorted by priority)
   - real-ip                        # priority: 23000
+  - ai                             # priority: 22900
   - client-control                 # priority: 22000
   - proxy-control                  # priority: 21990
   - request-id                     # priority: 12015
@@ -70,6 +71,11 @@ plugins:                           # plugin list (sorted by priority)
   #- error-log-logger              # priority: 1091
   - proxy-cache                    # priority: 1085
   - body-transformer               # priority: 1080
+  - ai-prompt-template             # priority: 1071
+  - ai-prompt-decorator            # priority: 1070
+  - ai-prompt-guard                # priority: 1072
+  - ai-rag                         # priority: 1060
+  - ai-aws-content-moderation      # priority: 1040 TODO: compare priority with other ai plugins
   - proxy-mirror                   # priority: 1010
   - proxy-rewrite                  # priority: 1008
   - workflow                       # priority: 1006
@@ -79,6 +85,7 @@ plugins:                           # plugin list (sorted by priority)
   - limit-req                      # priority: 1001
   #- node-status                   # priority: 1000
   - ai-proxy                       # priority: 999
+  - ai-proxy-multi                 # priority: 998
   #- brotli                        # priority: 996
   - gzip                           # priority: 995
   - server-info                    # priority: 990
@@ -113,10 +120,9 @@ plugins:                           # plugin list (sorted by priority)
   - tencent-cloud-cls              # priority: 397
   - inspect                        # priority: 200
   #- log-rotate                    # priority: 100
-
   # <- recommend to use priority (0, 100) for your custom plugins
+  - example-plugin                 # priority: 0
   - demo
-
   #- gm                            # priority: -43
   #- ocsp-stapling                 # priority: -44
   - aws-lambda                     # priority: -1899
