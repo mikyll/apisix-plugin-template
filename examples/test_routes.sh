@@ -60,3 +60,6 @@ curl -i "localhost:9080/jwt_auth/" -H "Authorization: Bearer ${JWT}"
 echo ""
 read -p 'curl -i "localhost:9080/demo"'
 curl -i "localhost:9080/demo"
+echo ""
+read -p 'curl -i "localhost:9080/apisix/plugin/demo/public_api"'
+curl -i "localhost:9080/apisix/plugin/demo/public_api"
