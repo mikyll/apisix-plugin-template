@@ -21,10 +21,18 @@ Extended from [api7/apisix-plugin-template](https://github.com/api7/apisix-plugi
   - [Template Usage](#template-usage)
   - [Plugin Template Structure](#plugin-template-structure)
   - [Plugin Usage](#plugin-usage)
+    - [Installation](#installation)
   - [Testing](#testing)
-    - [Docker](#docker)
+    - [Local Docker](#local-docker)
     - [CI](#ci)
   - [Examples](#examples)
+    - [Docker](#docker)
+      - [Standalone](#standalone)
+      - [Traditional](#traditional)
+      - [Custom Image](#custom-image)
+    - [Kubernetes (Helm Chart)](#kubernetes-helm-chart)
+      - [apisix/apisix](#apisixapisix)
+      - [bitnami/apisix](#bitnamiapisix)
   - [Learn More](#learn-more)
 
 ## Template Usage
@@ -46,8 +54,8 @@ The template contains the following files:
 │   └── plugins/     Your custom plugin goes here
 ├── ci               All files in this folder will be copied and will overwrite the original APISIX
 │   └── utils/       CI utils script folder
-├── examples         APISIX examples and use cases
-├── t/               Test cases go here
+├── examples/        APISIX examples and use cases
+├── t/               Test cases
 ├── LICENSE
 ├── Makefile
 └── README.md
@@ -57,31 +65,74 @@ The template contains the following files:
 
 ## Plugin Usage
 
-TODO
+### Installation
+
+To install the plugin in APISIX there are 2 methods:
+
+- placing them alongside other built-in plugins, in `${APISIX_INSTALL_DIRECTORY}/apisix/plugins/` (by default `/usr/local/apisix/apisix/plugins/`);
+- placing them in a custom directory and setting `apisix.extra_lua_path` to point that directory, in `config.yaml`.
 
 [Back to TOC](#table-of-contents)
 
 ## Testing
 
-To test your custom plugin, you can [write tests](https://apisix.apache.org/docs/apisix/internal/testing-framework) for it and run these tests in a Docker container locally or in the CI.
+To test your custom plugin, you can:
 
-### Docker
+- enable it on a route or a global rule and try sending a request;
+- [write tests](https://apisix.apache.org/docs/apisix/internal/testing-framework) for it and run these tests in a Docker container locally or in the CI.
 
-TODO
+### Local Docker
+
+This repository contains a [Docker image](examples/apisix-docker-custom/Dockerfile) which builds APISIX from source and installs the NGiNX testing framework. This can be used to run tests locally.
 
 ### CI
 
-The [`ci.yml`](.github/workflows/ci.yml) workflow runs the tests cases in the [`t/`](t/) folder on **pull_request** and **workflow_dispatch** events.
+The [`ci.yml`](.github/workflows/ci.yml) workflow runs the tests cases in the [`t/`](t/) folder and can be triggered by a **workflow_dispatch** event, from GitHub: [Actions | CI](https://github.com/mikyll/apisix-plugin-template/actions/workflows/ci.yml).
 
 [Back to TOC](#table-of-contents)
 
 ## Examples
 
-Folder [`examples/`](examples/) cotains examples to setup APISIX in Docker and Kubernetes, with different kind of deployments.
+Folder [`examples/`](examples/) contains several examples to setup APISIX and load the plugin(s), in different deployment modes, for Docker and Kubernetes installations.
+
+### Docker
+
+The following examples show how to install APISIX in a Docker container.
+
+#### Standalone
+
+Folder: [`examples/apisix-docker-standalone/`](examples/apisix-docker-standalone/)
+
+Standalone Moded uses a s
+
+#### Traditional
+
+Folder: [`examples/apisix-docker-traditional/`](examples/apisix-docker-traditional/)
+
+In traditional deployment mode, there's one single instance of APISIX which acts as both the **data plane** (i.e. the actual API gateway, which processes requests) and the **control plane** (i.e. the configuration manager).
+
+#### Custom Image
+
+Folder: [`examples/apisix-docker-custom/`](examples/apisix-docker-custom/)
+
+### Kubernetes (Helm Chart)
+
+The following examples show how to install APISIX in a Kubernetes cluster, using Helm. To run locally, have a look at [minikube](https://minikube.sigs.k8s.io/) or [k3s](https://k3s.io/).
+
+#### apisix/apisix
+
+Folder: [`examples/apisix-k8s-helm-apisix/`](examples/apisix-k8s-helm-apisix/)
+
+#### bitnami/apisix
+
+Folder: [`examples/apisix-k8s-helm-bitnami/`](examples/apisix-k8s-helm-bitnami/)
+
+[Back to TOC](#table-of-contents)
 
 ## Learn More
 
 - [APISIX Source Code](https://github.com/apache/apisix)
+- [APISIX Deployment Modes](https://apisix.apache.org/docs/apisix/deployment-modes/)
 - [Developing custom APISIX plugins](https://apisix.apache.org/docs/apisix/plugin-develop)
 - [APISIX testing framework](https://apisix.apache.org/docs/apisix/internal/testing-framework)
 - [APISIX debug mode](https://apisix.apache.org/docs/apisix/debug-mode/)
