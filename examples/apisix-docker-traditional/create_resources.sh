@@ -23,6 +23,17 @@ curl -s -i -X PUT "http://localhost:9180/apisix/admin/upstreams/external_httpbin
 }'
 
 # Consumers
+# Consumer for Key authentication, used for authenticating a route protected by API key auth
+curl -s -i -X PUT "http://localhost:9180/apisix/admin/consumers" -H "X-API-KEY: $ADMIN_APIKEY" -d '
+{
+  "username": "mike",
+  "plugins": {
+    "key-auth": {
+      "key": "mike_key"
+    }
+  }
+}'
+
 # Consumer for JWT authentication, used for authenticating a route protected by JWT auth
 curl -s -i -X PUT "http://localhost:9180/apisix/admin/consumers" -H "X-API-KEY: $ADMIN_APIKEY" -d '
 {
@@ -31,17 +42,6 @@ curl -s -i -X PUT "http://localhost:9180/apisix/admin/consumers" -H "X-API-KEY: 
     "jwt-auth": {
       "key": "joe_key",
       "secret": "joe_secret"
-    }
-  }
-}'
-
-# Consumer for Key authentication, used for authenticating a route protected by API key auth
-curl -s -i -X PUT "http://localhost:9180/apisix/admin/consumers" -H "X-API-KEY: $ADMIN_APIKEY" -d '
-{
-  "username": "mike",
-  "plugins": {
-    "key-auth": {
-      "key": "mike_key"
     }
   }
 }'
@@ -114,6 +114,28 @@ curl -s -i -X PUT "http://localhost:9180/apisix/admin/routes/path_params" -H "X-
   }
 }'
 
+# Route with timeout
+# curl "localhost:9080/timeout/1"
+# curl "localhost:9080/timeout/3"
+curl -s -i -X PUT "http://localhost:9180/apisix/admin/routes/timeout" -H "X-API-KEY: $ADMIN_APIKEY" -d '
+{
+  "uri": "/timeout/*",
+  "upstream_id": "internal_httpbin",
+  "timeout": {
+    "connect": 2,
+    "send": 2,
+    "read": 2
+  },
+  "plugins": {
+    "proxy-rewrite": {
+      "regex_uri": [
+        "^/timeout/(.*)",
+        "/delay/$1"
+      ]
+    }
+  }
+}'
+
 # Route with vars matching
 # curl "localhost:9080/vars/test?name=joe&age=10"
 # curl "localhost:9080/vars/test?name=joe&age=20"
@@ -148,24 +170,6 @@ curl -s -i -X PUT "http://localhost:9180/apisix/admin/routes/filter_func" -H "X-
   }
 }'
 
-# Route with JWT authentication
-# JWT="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJqb2Vfa2V5Iiwic3ViIjoiMTIzNDU2Nzg5MCIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjo5OTUxNjIzOTAyMn0.K-QwAwaS-Y3D9e_S9LPnU_35jWTnOBqfnIXf260Z-Aw"
-# curl "localhost:9080/jwt_auth/" -H "Authorization: Bearer ${JWT}"
-curl -s -i -X PUT "http://localhost:9180/apisix/admin/routes/jwt_auth" -H "X-API-KEY: $ADMIN_APIKEY" -d '
-{
-  "uri": "/jwt_auth/*",
-  "upstream_id": "internal_httpbin",
-  "plugins": {
-    "proxy-rewrite": {
-      "uri": "/get"
-    },
-    "jwt-auth": {
-      "key": "joe_key",
-      "algorithm": "HS256"
-    }
-  }
-}'
-
 # Route with Key authentication
 # API_KEY="mike_key"
 # curl localhost:9080/key_auth/ -H "X-Api-Key: ${API_KEY}"
@@ -180,6 +184,24 @@ curl -s -i -X PUT "http://localhost:9180/apisix/admin/routes/key_auth" -H "X-API
     "key-auth": {
       "key": "mike_key",
       "header": "X-Api-Key"
+    }
+  }
+}'
+
+# Route with JWT authentication
+# JWT="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJqb2Vfa2V5Iiwic3ViIjoiMTIzNDU2Nzg5MCIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjo5OTUxNjIzOTAyMn0.K-QwAwaS-Y3D9e_S9LPnU_35jWTnOBqfnIXf260Z-Aw"
+# curl "localhost:9080/jwt_auth/" -H "Authorization: Bearer ${JWT}"
+curl -s -i -X PUT "http://localhost:9180/apisix/admin/routes/jwt_auth" -H "X-API-KEY: $ADMIN_APIKEY" -d '
+{
+  "uri": "/jwt_auth/*",
+  "upstream_id": "internal_httpbin",
+  "plugins": {
+    "proxy-rewrite": {
+      "uri": "/get"
+    },
+    "jwt-auth": {
+      "key": "joe_key",
+      "algorithm": "HS256"
     }
   }
 }'
