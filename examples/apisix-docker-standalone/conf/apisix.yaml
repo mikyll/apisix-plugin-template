@@ -12,17 +12,17 @@ upstreams:
     type: roundrobin
 
 consumers:
+  # Consumer for Key authentication, used for authenticating a route protected by API key auth
+  - username: "mike"
+    plugins:
+      key-auth:
+        key: "mike_key"
   # Consumer for JWT authentication, used for authenticating a route protected by JWT auth
   - username: "joe"
     plugins:
       jwt-auth:
         key: "joe_key"
         secret: "joe_secret"
-  # Consumer for Key authentication, used for authenticating a route protected by API key auth
-  - username: "mike"
-    plugins:
-      key-auth:
-        key: "mike_key"
 
 routes:
   # Simple route to internal service
@@ -61,6 +61,22 @@ routes:
           - ^/path_params/(.*)/(.*)/(.*)
           - /$3?id1=$1&id2=$2
 
+  # Route with timeout
+  # curl "localhost:9080/timeout/1"
+  # curl "localhost:9080/timeout/3"
+  - id: timeout
+    uri: /timeout/*
+    upstream_id: internal_httpbin
+    timeout:
+      connect: 2
+      send: 2
+      read: 2
+    plugins:
+      proxy-rewrite:
+        regex_uri:
+          - ^/timeout/(.*)
+          - /delay/$1
+
   # Route with vars matching
   # curl "localhost:9080/vars/test?name=joe&age=10"
   # curl "localhost:9080/vars/test?name=joe&age=20"
@@ -68,9 +84,11 @@ routes:
     uri: /vars/*
     upstream_id: internal_httpbin
     vars:
-      - AND,
-        [ "arg_name", "==", "joe" ]
-        [ "arg_age", ">", "18" ]
+      - [
+          AND, 
+          [ "arg_name", "==", "joe" ], 
+          [ "arg_age", ">", "18" ]
+        ]
     plugins:
       proxy-rewrite:
         uri: /get
@@ -89,19 +107,6 @@ routes:
       proxy-rewrite:
         uri: /get
 
-  # Route with JWT authentication
-  # JWT="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJqb2Vfa2V5Iiwic3ViIjoiMTIzNDU2Nzg5MCIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjo5OTUxNjIzOTAyMn0.K-QwAwaS-Y3D9e_S9LPnU_35jWTnOBqfnIXf260Z-Aw"
-  # curl localhost:9080/jwt_auth/ -H "Authorization: Bearer ${JWT}"
-  - id: jwt_auth
-    uri: /jwt_auth/*
-    upstream_id: internal_httpbin
-    plugins:
-      proxy-rewrite:
-        uri: /get
-      jwt-auth:
-        key: "joe_key"
-        algorithm: "HS256"
-
   # Route with Key authentication
   # API_KEY="mike_key"
   # curl localhost:9080/key_auth/ -H "X-Api-Key: ${API_KEY}"
@@ -114,6 +119,19 @@ routes:
       key-auth:
         key: "mike_key"
         header: "X-Api-Key"
+
+  # Route with JWT authentication
+  # JWT="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJqb2Vfa2V5Iiwic3ViIjoiMTIzNDU2Nzg5MCIsIm5hbWUiOiJKb2huIERvZSIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjo5OTUxNjIzOTAyMn0.K-QwAwaS-Y3D9e_S9LPnU_35jWTnOBqfnIXf260Z-Aw"
+  # curl localhost:9080/jwt_auth/ -H "Authorization: Bearer ${JWT}"
+  - id: jwt_auth
+    uri: /jwt_auth/*
+    upstream_id: internal_httpbin
+    plugins:
+      proxy-rewrite:
+        uri: /get
+      jwt-auth:
+        key: "joe_key"
+        algorithm: "HS256"
 
   # Route with demo plugin
   # curl localhost:9080/demo
