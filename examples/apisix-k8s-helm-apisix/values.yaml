@@ -1,0 +1,16 @@
+# Helm chart: apisix/apisix
+apisix:
+  router:
+    http: radixtree_uri_with_parameter
+
+service:
+  type: LoadBalancer
+
+ingress-controller:
+  enabled: true
+  config:
+    apisix:
+      serviceNamespace: ingress-apisix
+      adminAPIVersion: v3
+    kubernetes:
+      ingressClass: "apisix"
