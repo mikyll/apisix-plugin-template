@@ -84,7 +84,39 @@ GET /demo
 
 
 
-=== TEST 4: test public api
+=== TEST 4: enable public api
+--- config
+    location = /t {
+        content_by_lua_block {
+            local t = require("lib.test_admin").test
+            local code, body = t('/apisix/admin/routes/2',
+                ngx.HTTP_PUT,
+                [[{
+                    "plugins": {
+                        "public-api": {}
+                    },
+                    "upstream": {
+                        "nodes": {
+                            "127.0.0.1:1980": 1
+                        },
+                        "type": "roundrobin"
+                    },
+                    "uri": "/apisix/plugin/demo/public_api"
+                }]]
+                )
+
+            if code >= 300 then
+                ngx.status = code
+            end
+            ngx.say(body)
+        }
+    }
+--- response_body
+passed
+
+
+
+=== TEST 5: test public api
 --- request
 GET /apisix/plugin/demo/public_api
 --- response_body
@@ -92,7 +124,7 @@ GET /apisix/plugin/demo/public_api
 
 
 
-=== TEST 5: test control api
+=== TEST 6: test control api
 --- pipelined_requests eval
 ["GET /v1/plugin/demo/control_api?json=test", "GET /v1/plugin/demo/control_api"]
 --- response_body eval
