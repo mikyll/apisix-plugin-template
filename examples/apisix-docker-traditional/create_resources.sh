@@ -218,3 +218,12 @@ curl -s -i -X PUT "http://localhost:9180/apisix/admin/routes/demo" -H "X-API-KEY
     }
   }
 }'
+
+curl -s -i -X PUT "http://localhost:9180/apisix/admin/routes/demo_public_api" -H "X-API-KEY: $ADMIN_APIKEY" -d '
+{
+  "uri": "/apisix/plugin/demo/public_api",
+  "upstream_id": "internal_httpbin",
+  "plugins": {
+    "public-api": {}
+  }
+}'
