@@ -9,7 +9,11 @@ on:
   #     - "main"
   
   workflow_dispatch:
-
+    inputs:
+      git_branch_APISIX:
+        description: "APISIX GitHub branch (default master). Branches list: https://github.com/apache/apisix/branches"
+        required: true
+        default: "master"
 
 jobs:
   unit-test:
@@ -30,7 +34,7 @@ jobs:
 
       - name: Check out APISIX repo
         run: |
-          sudo make init_apisix
+          sudo make init_apisix GIT_BRANCH_APISIX="${{ github.event.inputs.git_branch_APISIX }}"
           sudo make patch_apisix
 
       - name: Install custom module
