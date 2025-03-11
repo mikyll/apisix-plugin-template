@@ -96,6 +96,7 @@ plugins:                           # plugin list (sorted by priority)
 
   # <- recommend to use priority (0, 100) for your custom plugins
   - demo
+  - error-page
 
   #- gm                            # priority: -43
   #- ocsp-stapling                 # priority: -44
